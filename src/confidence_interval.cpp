@@ -285,6 +285,7 @@ bool computeIC_bootstraps(InputOutputStream *io, Pr* pr,Node** nodes,double* &T_
     pr_bootstrap->copy(pr);
     double median_rate = pr->rho_min;
     double br=0;
+    double br2=0;
     bool unique = true;
     for (int y = 0; y< pr->nbBootstrap; y++){
         pr_bootstrap->internalConstraints.clear();
@@ -322,7 +323,7 @@ bool computeIC_bootstraps(InputOutputStream *io, Pr* pr,Node** nodes,double* &T_
         } else{
             if (!pr_bootstrap->rooted){
                 unrooted2rooted(pr_bootstrap,nodes_bootstrap);
-                reroot_rootedtree(br,r,pr_bootstrap,nodes_bootstrap);
+                reroot_rootedtree(br,br2,r,pr_bootstrap,nodes_bootstrap);
             }
             if (pr->ratePartition.size()>0) assignRateGroupToTree(pr,nodes_bootstrap);
             computeVariance(pr_bootstrap,nodes_bootstrap);
@@ -348,7 +349,7 @@ bool computeIC_bootstraps(InputOutputStream *io, Pr* pr,Node** nodes,double* &T_
                     r=estimate_root_without_constraint_rooted(pr_bootstrap,nodes_bootstrap);
                 }
                 if (r>0){
-                    reroot_rootedtree(br,r,pr_bootstrap,nodes_bootstrap);
+                    reroot_rootedtree(br,br2,r,pr_bootstrap,nodes_bootstrap);
                     without_constraint_active_set_lambda_multirates(true,br,pr_bootstrap,nodes_bootstrap,true);
                 }
             }
@@ -367,7 +368,7 @@ bool computeIC_bootstraps(InputOutputStream *io, Pr* pr,Node** nodes,double* &T_
                     r=estimate_root_with_constraint_rooted(pr_bootstrap,nodes_bootstrap);
                 }
                 if (r>0){
-                    reroot_rootedtree(br,r,pr_bootstrap,nodes_bootstrap);
+                    reroot_rootedtree(br,br2,r,pr_bootstrap,nodes_bootstrap);
                     with_constraint_active_set_lambda_multirates(true,br,pr_bootstrap,nodes_bootstrap,true);
                 }
             }

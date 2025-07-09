@@ -1162,12 +1162,13 @@ int estimate_root_without_constraint_local_rooted(Pr* &pr,Node** &nodes){
     iter++;
     int s2=(*iter);
     double br=0;
+    double br2=0;
     int r=0;
     double* multiplier = new double[pr->ratePartition.size()+1];
     vector<double> originalD;
     for (int i=0;i<=pr->nbBranches;i++) originalD.push_back(nodes[i]->D);
     if (pr->verbose) cout<<"Optimizing the root position on the original branch "<<s1<<" ... ";
-    bool bl = reroot_rootedtree(br,s1,s1,s2,pr,nodes,nodes_new);
+    bool bl = reroot_rootedtree(br,br2,s1,s1,s2,pr,nodes,nodes_new);
     if (bl){
         for (int i=pr->nbINodes;i<=pr->nbBranches;i++){
             if (nodes_new[i]->type=='p') nodes_new[i]->D = originalD[i];
@@ -1208,7 +1209,7 @@ int estimate_root_without_constraint_local_rooted(Pr* &pr,Node** &nodes){
         for (int i=pr->nbINodes; i<=pr->nbBranches; i++) {
             nodes_new[i]->status=nodes[i]->status;
         }
-        bl=reroot_rootedtree(br,i,s1,s2,pr,nodes,nodes_new);
+        bl=reroot_rootedtree(br,br2,i,s1,s2,pr,nodes,nodes_new);
         if (pr->verbose) cout<<"Optimizing the root position on the branch "<<i<<" ... ";
         if (bl){
             for (int i=pr->nbINodes;i<=pr->nbBranches;i++){
@@ -1278,6 +1279,7 @@ int estimate_root_without_constraint_rooted(Pr* &pr,Node** &nodes){
     Node** nodes_new = cloneLeaves(pr,nodes,0);
     int y=1;
     double br=0;
+    double br2=0;
     int r=0;
     vector<int>::iterator iter=nodes[0]->suc.begin();
     int s1=(*iter);
@@ -1287,7 +1289,7 @@ int estimate_root_without_constraint_rooted(Pr* &pr,Node** &nodes){
     vector<double> originalD;
     for (int i=0;i<=pr->nbBranches;i++) originalD.push_back(nodes[i]->D);
     if (pr->verbose) cout<<"Optimizing the root position on the branch "<<y<<" ... ";
-    bool bl=reroot_rootedtree(br,y,s1,s2,pr,nodes,nodes_new);
+    bool bl=reroot_rootedtree(br,br2,y,s1,s2,pr,nodes,nodes_new);
     if (bl){
         for (int i=pr->nbINodes;i<=pr->nbBranches;i++){
             if (nodes_new[i]->type=='p') nodes_new[i]->D = originalD[i];
@@ -1317,7 +1319,7 @@ int estimate_root_without_constraint_rooted(Pr* &pr,Node** &nodes){
             nodes_new[i]->status=nodes[i]->status;
         }
         if (pr->verbose) cout<<"Optimizing the root position on the branch "<<y<<" ... ";
-        bl=reroot_rootedtree(br,y,s1,s2,pr,nodes,nodes_new);
+        bl=reroot_rootedtree(br,br2,y,s1,s2,pr,nodes,nodes_new);
         if (bl){
             for (int i=pr->nbINodes;i<=pr->nbBranches;i++){
                 if (nodes_new[i]->type=='p') nodes_new[i]->D = originalD[i];
@@ -1374,13 +1376,14 @@ int estimate_root_with_constraint_local_rooted(Pr* &pr,Node** &nodes){
     iter++;
     int s2=(*iter);
     double br=0;
+    double br2=0;
     int r=0;
     double phi1;
     double* multiplier = new double[pr->ratePartition.size()+1];
     if (pr->verbose) cout<<"Optimizing the root position on the original branch "<<s1<<" ... ";
     vector<double> originalD;
     for (int i=0;i<=pr->nbBranches;i++) originalD.push_back(nodes[i]->D);
-    bool bl = reroot_rootedtree(br,s1,s1,s2,pr,nodes,nodes_new);
+    bool bl = reroot_rootedtree(br,br2,s1,s1,s2,pr,nodes,nodes_new);
     if (bl){
         bool consistent=with_constraint_active_set_lambda_multirates(false,br,pr,nodes_new,true);
         if (consistent){
@@ -1419,7 +1422,7 @@ int estimate_root_with_constraint_local_rooted(Pr* &pr,Node** &nodes){
             nodes_new[i]->status=nodes[i]->status;
         }
         if (pr->verbose) cout<<"Optimizing the root position on the branch "<<i<<" ... ";
-        bl=reroot_rootedtree(br,i,s1,s2,pr,nodes,nodes_new);
+        bl=reroot_rootedtree(br,br2,i,s1,s2,pr,nodes,nodes_new);
         if (bl){
             for (int i=pr->nbINodes;i<=pr->nbBranches;i++){
                 if (nodes_new[i]->type=='p') nodes_new[i]->D = originalD[i];
@@ -1502,10 +1505,11 @@ int estimate_root_with_constraint_fast_rooted(Pr* &pr,Node** &nodes){
         int* P_ref = new int[pr->nbBranches+1];
         int* tab = new int[pr->nbBranches+1];
         double br=0;
+        double br2=0;
         double* cv = new double[pr->nbBranches+1];
         for (int i=0;i<=pr->nbBranches;i++) cv[i]=0;
         if (pr->verbose) cout<<"Optimizing the root position on the branch "<<r<<" ... ";
-        bool bl=reroot_rootedtree(br,r,s01,s02,pr,nodes,nodes_new,P_ref,tab);
+        bool bl=reroot_rootedtree(br,br2,r,s01,s02,pr,nodes,nodes_new,P_ref,tab);
         if (bl){
             for (int i=pr->nbINodes;i<=pr->nbBranches;i++){
                 if (nodes_new[i]->type=='p') nodes_new[i]->D = originalD[i];
@@ -1549,7 +1553,7 @@ int estimate_root_with_constraint_fast_rooted(Pr* &pr,Node** &nodes){
                 nodes_new[i]->status=nodes[i]->status;
             }
             if (pr->verbose) cout<<"Optimizing the root position on the branch "<<e<<" ... ";
-            bl=reroot_rootedtree(br,e,s01,s02,pr,nodes,nodes_new);
+            bl=reroot_rootedtree(br,br2,e,s01,s02,pr,nodes,nodes_new);
             if (bl){
                 for (int i=pr->nbINodes;i<=pr->nbBranches;i++){
                     if (nodes_new[i]->type=='p') nodes_new[i]->D = originalD[i];
@@ -1616,6 +1620,7 @@ int estimate_root_with_constraint_rooted(Pr* &pr,Node** &nodes){
     int y=1;
     Node** nodes_new = cloneLeaves(pr,nodes,0);
     double br=0;
+    double br2=0;
     double phi1;
     double phi;
     int r=0;
@@ -1627,7 +1632,7 @@ int estimate_root_with_constraint_rooted(Pr* &pr,Node** &nodes){
     if (pr->verbose) cout<<"Optimizing the root position on the branch "<<y<<" ... ";
     vector<double> originalD;
     for (int i=0;i<=pr->nbBranches;i++) originalD.push_back(nodes[i]->D);
-    bool bl=reroot_rootedtree(br,y,s1,s2,pr,nodes,nodes_new);
+    bool bl=reroot_rootedtree(br,br2,y,s1,s2,pr,nodes,nodes_new);
     if (bl){
         for (int i=pr->nbINodes;i<=pr->nbBranches;i++){
             if (nodes_new[i]->type=='p') nodes_new[i]->D = originalD[i];
@@ -1654,7 +1659,7 @@ int estimate_root_with_constraint_rooted(Pr* &pr,Node** &nodes){
             nodes_new[i]->status=nodes[i]->status;
         }
         if (pr->verbose) cout<<"Optimizing the root position on the branch "<<y<<" ... ";
-        bl=reroot_rootedtree(br,y,s1,s2,pr,nodes,nodes_new);
+        bl=reroot_rootedtree(br,br2,y,s1,s2,pr,nodes,nodes_new);
         if (bl){
             for (int i=pr->nbINodes;i<=pr->nbBranches;i++){
                 if (nodes_new[i]->type=='p') nodes_new[i]->D = originalD[i];
@@ -1932,12 +1937,14 @@ void imposeMinBlen(ostream& file,Pr* pr, Node** nodes,double minB, bool verbose)
         if (minB==0) minblen = 0;
         else {
             double br;
+            double br2;
             if (pr->estimate_root == ""){
                 without_constraint_multirates(pr,nodes,true);
             } else if (pr->estimate_root == "k"){
                 int s1 = nodes[0]->suc[0];
                 int s2 = nodes[0]->suc[1];
                 br=nodes[s1]->B+nodes[s2]->B;
+                br2=nodes[s1]->OrigB+nodes[s2]->OrigB;
                 nodes[s1]->V=variance(pr,br);
                 nodes[s2]->V=nodes[s1]->V;
                 without_constraint_active_set_lambda_multirates(true,br,pr,nodes,true);
@@ -1955,7 +1962,7 @@ void imposeMinBlen(ostream& file,Pr* pr, Node** nodes,double minB, bool verbose)
                 for (int i=pr->nbINodes; i<=pr->nbBranches; i++) {
                     nodes_new[i]->status=nodes[i]->status;
                 }
-                reroot_rootedtree(br,r,s1,s2,pr,nodes,nodes_new);
+                reroot_rootedtree(br,br2,r,s1,s2,pr,nodes,nodes_new);
                 without_constraint_active_set_lambda_multirates(true,br,pr,nodes_new,true);
                 for (int i=0;i<pr->nbBranches+1;i++) delete nodes_new[i];
                 delete[] nodes_new;

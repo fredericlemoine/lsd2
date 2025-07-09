@@ -95,14 +95,21 @@ bool calculateOutliers(Pr* & pr,Node** & nodes,double & median_rate,bool verbose
             iter++;
             s2=(*iter);
             br=nodes[s1]->B+nodes[s2]->B;
+            double br2 = nodes[s1]->OrigB+nodes[s2]->OrigB;
             bool consistent1, consistent2;
             double median_rate1, median_rate2;
             nodes[s1]->B = 0;
             nodes[s2]->B = br;
+            nodes[s1]->OrigB = 0;
+            nodes[s2]->OrigB = br2;
+
             vector<int> outliers1 = outliers_rooted(pr,nodes,samples,dates_min,dates_max,false,both,median_rate1,consistent1);
             pr->givenRate[0] = givenRate;
             nodes[s1]->B = br;
             nodes[s2]->B = 0;
+            nodes[s1]->OrigB = br2;
+            nodes[s2]->OrigB = 0;
+
             vector<int> outliers2 = outliers_rooted(pr,nodes,samples,dates_min,dates_max,false,both,median_rate2,consistent2);
             pr->givenRate[0] = givenRate;
             delete[] samples;
@@ -217,6 +224,9 @@ bool remove_one_tip(Pr* pr,Node** nodes,int t,int* &tab){//return false if remov
             double br=nodes[s]->B;
             nodes[s]->B=br/2;
             nodes[sibling_t]->B=br/2;
+            double br2=nodes[s]->OrigB;
+            nodes[s]->OrigB=br2/2;
+            nodes[sibling_t]->OrigB=br2/2;
             nodes[s]->P=0;
             nodes[sibling_t]->P=0;
             nodes[sibling_t]->suc.erase(nodes[sibling_t]->suc.begin());
@@ -229,6 +239,7 @@ bool remove_one_tip(Pr* pr,Node** nodes,int t,int* &tab){//return false if remov
             if (p>0){
                 int pp = nodes[p]->P;
                 nodes[sibling_t]->B = nodes[sibling_t]->B + nodes[p]->B;
+                nodes[sibling_t]->OrigB = nodes[sibling_t]->OrigB + nodes[p]->OrigB;
                 nodes[sibling_t]->P = pp;
                 vector<int> sucpp;
                 sucpp.push_back(sibling_t);
@@ -281,6 +292,7 @@ void shift_node_id(Pr* &pr,Node** &nodes,int* &tab){
             nodesReduced[tab[i]]=new Node();
             nodesReduced[tab[i]]->P=tab[nodes[i]->P];
             nodesReduced[tab[i]]->B=nodes[i]->B;
+            nodesReduced[tab[i]]->OrigB=nodes[i]->OrigB;
             nodesReduced[tab[i]]->type=nodes[i]->type;
             nodesReduced[tab[i]]->status=nodes[i]->status;
             nodesReduced[tab[i]]->lower=nodes[i]->lower;
@@ -656,6 +668,7 @@ vector<int> outliers_rooted(Pr* pr,Node** nodes,vector<int>* samples, vector<dou
 bool outliers_unrooted(Pr* &pr,Node** &nodes,double& median_rate){
     Node** nodes_new = cloneLeaves(pr,nodes,0);
     double br=0;
+    double br2=0;
     vector<int>::iterator iter=nodes[0]->suc.begin();
     int s1=(*iter);
     iter++;
@@ -680,7 +693,7 @@ bool outliers_unrooted(Pr* &pr,Node** &nodes,double& median_rate){
     bool bl = false;
     int y=1;
     while (!bl && y<=pr->nbBranches){
-        bl=reroot_rootedtree(br,y,s1,s2,pr,nodes,nodes_new);
+        bl=reroot_rootedtree(br,br2,y,s1,s2,pr,nodes,nodes_new);
         y++;
     }
     bool consistent;
@@ -713,6 +726,8 @@ bool outliers_unrooted(Pr* &pr,Node** &nodes,double& median_rate){
         }
         nodes_new[y]->B = 0;
         nodes_new[nodes[y]->P]->B = br;
+        nodes_new[y]->OrigB = 0;
+        nodes_new[nodes[y]->P]->OrigB = br2;
         bool givenRate = pr->givenRate[0];
         vector<double> median_rates;
         double med_rate;
@@ -726,10 +741,12 @@ bool outliers_unrooted(Pr* &pr,Node** &nodes,double& median_rate){
         pr->givenRate[0] = givenRate;
         y++;
         while (y<=pr->nbBranches){
-            bl=reroot_rootedtree(br,y,s1,s2,pr,nodes,nodes_new);
+            bl=reroot_rootedtree(br,br2,y,s1,s2,pr,nodes,nodes_new);
             if (bl){
                 nodes_new[y]->B = 0;
                 nodes_new[nodes[y]->P]->B = br;
+                nodes_new[y]->OrigB = 0;
+                nodes_new[nodes[y]->P]->OrigB = br2;
                 vector<int> outs=outliers_rooted(pr,nodes_new,samples,originalD_min,originalD_max,true,both,med_rate,consistent);
                 if (consistent){
                     median_rates.push_back(med_rate);

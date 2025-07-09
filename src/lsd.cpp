@@ -123,6 +123,7 @@ int lsd::buildTimeTree( int argc, char** argv, InputOutputStream *inputOutput)
         }
         computeVariance(opt,nodes);
         double br=0;
+        double br2=0;
         int r=0;
         if (opt->givenRate[0]){
             string line;
@@ -199,7 +200,7 @@ int lsd::buildTimeTree( int argc, char** argv, InputOutputStream *inputOutput)
                     for (int i=opt->nbINodes; i<=opt->nbBranches; i++) {
                         nodes_new[i]->status=nodes[i]->status;
                     }
-                    reroot_rootedtree(br,r,s1,s2,opt,nodes,nodes_new);
+                    reroot_rootedtree(br,br2,r,s1,s2,opt,nodes,nodes_new);
                     without_constraint_active_set_lambda_multirates(true,br,opt,nodes_new,true);
                     output(br,y,io, opt,nodes_new,*(io->outResult),*(io->outTree2),*(io->outTree3),*(io->outTree4),r,diffTopology);
                     for (int i=0;i<opt->nbBranches+1;i++) delete nodes_new[i];
@@ -264,7 +265,7 @@ int lsd::buildTimeTree( int argc, char** argv, InputOutputStream *inputOutput)
                         for (int i=opt->nbINodes; i<=opt->nbBranches; i++) {
                             nodes_new[i]->status=nodes[i]->status;
                         }
-                        reroot_rootedtree(br,r,s1,s2,opt,nodes,nodes_new);
+                        reroot_rootedtree(br,br2,r,s1,s2,opt,nodes,nodes_new);
                         with_constraint_active_set_lambda_multirates(true,br,opt,nodes_new,true);
                         output(br,y,io, opt,nodes_new,*(io->outResult),*(io->outTree2),*(io->outTree3),*(io->outTree4),r,diffTopology);
                         for (int i=0;i<opt->nbBranches+1;i++) delete nodes_new[i];

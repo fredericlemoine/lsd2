@@ -1852,13 +1852,13 @@ void cloneInternalNodes(Pr* pr,Node** nodes,Node** &nodes_new,int f){
     return true;
 }*/
 
-bool reroot_rootedtree(double& br,int r,int s10,int s20,Pr* pr,Node** nodes,Node** &nodes_new){
+bool reroot_rootedtree(double& br,double& br2, int r,int s10,int s20,Pr* pr,Node** nodes,Node** &nodes_new){
     cloneInternalNodes(pr,nodes,nodes_new,0);
     if (r==s10 || r==s20){
         br = nodes[s10]->B+nodes[s20]->B;
         nodes_new[s10]->B=br;
         nodes_new[s20]->B=br;
-        double br2 = nodes[s10]->OrigB+nodes[s20]->OrigB;
+        br2 = nodes[s10]->OrigB+nodes[s20]->OrigB;
         nodes_new[s10]->OrigB=br2;
         nodes_new[s20]->OrigB=br2;
         computeVarianceEstimateRoot(pr,nodes_new,br);
@@ -1904,7 +1904,7 @@ bool reroot_rootedtree(double& br,int r,int s10,int s20,Pr* pr,Node** nodes,Node
         nodes_new[k]->B=nodes[i]->B+nodes[k]->B;
         nodes_new[r]->B=br;
         nodes_new[nodes[r]->P]->B=br;
-        double br2=nodes[r]->OrigB;
+        br2=nodes[r]->OrigB;
         nodes_new[k]->OrigB=nodes[i]->OrigB+nodes[k]->OrigB;
         nodes_new[r]->OrigB=br2;
         nodes_new[nodes[r]->P]->OrigB=br2;
@@ -1913,7 +1913,7 @@ bool reroot_rootedtree(double& br,int r,int s10,int s20,Pr* pr,Node** nodes,Node
     }
 }
 
-bool reroot_rootedtree(double& br,int r,Pr* pr,Node** nodes){
+bool reroot_rootedtree(double& br,double& br2,int r,Pr* pr,Node** nodes){
     Node** nodes_new = cloneLeaves(pr,nodes,0);
     vector<int>::iterator iter=nodes[0]->suc.begin();
     int s10=(*iter);
@@ -1927,7 +1927,7 @@ bool reroot_rootedtree(double& br,int r,Pr* pr,Node** nodes){
         br = nodes[s10]->B+nodes[s20]->B;
         nodes_new[s10]->B=br;
         nodes_new[s20]->B=br;
-        double br2 = nodes[s10]->OrigB+nodes[s20]->OrigB;
+        br2 = nodes[s10]->OrigB+nodes[s20]->OrigB;
         nodes_new[s10]->OrigB=br2;
         nodes_new[s20]->OrigB=br2;
         computeVarianceEstimateRoot(pr,nodes_new,br);
@@ -1974,7 +1974,7 @@ bool reroot_rootedtree(double& br,int r,Pr* pr,Node** nodes){
         nodes_new[k]->B=nodes[i]->B+nodes[k]->B;
         nodes_new[r]->B=br;
         nodes_new[nodes[r]->P]->B=br;
-        double br2=nodes[r]->OrigB;
+        br2=nodes[r]->OrigB;
         nodes_new[k]->OrigB=nodes[i]->OrigB+nodes[k]->OrigB;
         nodes_new[r]->OrigB=br2;
         nodes_new[nodes[r]->P]->OrigB=br2;
@@ -1984,7 +1984,7 @@ bool reroot_rootedtree(double& br,int r,Pr* pr,Node** nodes){
     }
 }
 
-bool reroot_rootedtree(double& br,int r,int s10,int s20,Pr* pr,Node** nodes,Node** &nodes_new,int* & P_ref,int* & tab){
+bool reroot_rootedtree(double& br,double& br2, int r,int s10,int s20,Pr* pr,Node** nodes,Node** &nodes_new,int* & P_ref,int* & tab){
     cloneInternalNodes(pr,nodes,nodes_new,0);
     for (int i=0; i<=pr->nbBranches; i++) {
         tab[i]=i;
@@ -2000,7 +2000,7 @@ bool reroot_rootedtree(double& br,int r,int s10,int s20,Pr* pr,Node** nodes,Node
         br = nodes[s10]->B+nodes[s20]->B;
         nodes_new[s10]->B=br;
         nodes_new[s20]->B=br;
-        double br2 = nodes[s10]->OrigB+nodes[s20]->OrigB;
+        br2 = nodes[s10]->OrigB+nodes[s20]->OrigB;
         nodes_new[s10]->OrigB=br2;
         nodes_new[s20]->OrigB=br2;
         computeVarianceEstimateRoot(pr,nodes_new,br);
@@ -2052,7 +2052,7 @@ bool reroot_rootedtree(double& br,int r,int s10,int s20,Pr* pr,Node** nodes,Node
         nodes_new[k]->B=nodes[i]->B+nodes[k]->B;
         nodes_new[r]->B=br;
         nodes_new[nodes[r]->P]->B=br;
-        double br2=nodes[r]->OrigB;
+        br2=nodes[r]->OrigB;
         nodes_new[k]->OrigB=nodes[i]->OrigB+nodes[k]->OrigB;
         nodes_new[r]->OrigB=br;
         nodes_new[nodes[r]->P]->OrigB=br2;
