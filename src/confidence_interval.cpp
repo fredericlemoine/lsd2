@@ -554,7 +554,7 @@ bool computeIC_bootstraps(InputOutputStream *io, Pr* pr,Node** nodes,double* &T_
     return diffTopology;
 }
 
-void output(double br,int y, InputOutputStream *io, Pr* pr,Node** nodes,ostream& f,ostream& tree2,ostream& tree3,int r, bool diffTopology){
+void output(double br,int y, InputOutputStream *io, Pr* pr,Node** nodes,ostream& f,ostream& tree2,ostream& tree3, ostream& tree4, int r, bool diffTopology){
     if (!pr->constraint && pr->ci) {
         std::ostringstream oss;
         oss<<"- Confidence intervals are not warranted under non-constraint mode.\n";
@@ -759,6 +759,7 @@ void output(double br,int y, InputOutputStream *io, Pr* pr,Node** nodes,ostream&
         }
         int n=0;
         tree3<<newick(0,0,pr,nodes,n).c_str();
+        tree4<<newickGotree(0,0,pr,nodes,n).c_str();
     }
     else if (pr->haveUnique || (pr->haveLower && pr->haveUpper)){
         double* T_min = new double[pr->nbBranches+1];
@@ -838,6 +839,7 @@ void output(double br,int y, InputOutputStream *io, Pr* pr,Node** nodes,ostream&
         }
         int n=0;
         tree3<<newick(0,0,pr,nodes,n).c_str();
+        tree4<<newickGotree(0,0,pr,nodes,n).c_str();
         
         delete[] T_min;
         delete[] T_max;

@@ -219,6 +219,14 @@ InputOutputFile::InputOutputFile(Pr *opt) : InputOutputStream() {
         cerr << "Error: can not create the output tree file " << opt->treeFile3 << endl;
         exit(EXIT_FAILURE);
     }
+
+    ofstream *tree4_file = new ofstream(opt->treeFile4);
+    outTree4 = tree4_file;
+    if (!tree4_file->is_open()) {
+        cerr << "Error: can not create the output tree file " << opt->treeFile4 << endl;
+        exit(EXIT_FAILURE);
+    }
+
 }
 
 InputOutputFile::~InputOutputFile() {
@@ -252,6 +260,11 @@ InputOutputFile::~InputOutputFile() {
     if (outTree3) {
         ((ofstream*)outTree3)->close();
     }
+
+    if (outTree4) {
+        ((ofstream*)outTree4)->close();
+    }
+
 }
 
 void InputOutputFile::setTree(string str) {
@@ -1215,6 +1228,9 @@ void unrooted2rooted(Pr* &pr,Node** nodes){
     double br=nodes[s]->B;
     nodes[s]->B=br/2;
     nodes[1]->B=br/2;
+    double br2=nodes[s]->OrigB;
+    nodes[s]->OrigB=br2/2;
+    nodes[1]->OrigB=br2/2;
     nodes[s]->P=0;
     nodes[1]->P=0;
     nodes[1]->suc.erase(nodes[1]->suc.begin());
@@ -1234,6 +1250,7 @@ void rooted2unrooted(Pr* &pr,Node** nodes){
     nodes[s2]->P = s1;
     nodes[s1]->suc.push_back(s2);
     nodes[s2]->B = nodes[s2]->B + nodes[s1]->B;
+    nodes[s2]->OrigB = nodes[s2]->OrigB + nodes[s1]->OrigB;
     pr->rooted = false;
 }
 
@@ -1280,12 +1297,14 @@ Node** unrooted2rootedS(Pr* &pr,Node** nodes,int s){//simplier version, use only
         nodes_new[i]=new Node();
         nodes_new[i]->P=nodes[i]->P;
         nodes_new[i]->B=nodes[i]->B;
+        nodes_new[i]->OrigB=nodes[i]->OrigB;
         nodes_new[i]->L=nodes[i]->L;
     }
     for (int i=0; i<pr->nbINodes; i++) {
         nodes_new[i] = new Node();
         nodes_new[i]->P=nodes[i]->P;
         nodes_new[i]->B=nodes[i]->B;
+        nodes_new[i]->OrigB=nodes[i]->OrigB;
         nodes_new[i]->L=nodes[i]->L;
     }
     nodes_new[0]=new Node();
@@ -1293,6 +1312,9 @@ Node** unrooted2rootedS(Pr* &pr,Node** nodes,int s){//simplier version, use only
     double br=nodes[s]->B;
     nodes_new[s]->B=br/2;
     nodes_new[1]->B=br/2;
+    double br2=nodes[s]->OrigB;
+    nodes_new[s]->OrigB=br2/2;
+    nodes_new[1]->OrigB=br2/2;
     nodes_new[s]->P=0;
     nodes_new[1]->P=0;
     for (int i=0;i<=pr->nbBranches;i++) delete nodes[i];
@@ -1773,6 +1795,7 @@ Node** cloneLeaves(Pr* pr,Node** nodes,int f){
         nodes_new[i+f]=new Node();
         nodes_new[i+f]->P=nodes[i]->P+f;
         nodes_new[i+f]->B=nodes[i]->B;
+        nodes_new[i+f]->OrigB=nodes[i]->OrigB;
         nodes_new[i+f]->L=nodes[i]->L;
         nodes_new[i+f]->V=nodes[i]->V;
         nodes_new[i+f]->type=nodes[i]->type;
@@ -1789,6 +1812,7 @@ void cloneInternalNodes(Pr* pr,Node** nodes,Node** &nodes_new,int f){
     for (int i=0; i<pr->nbINodes; i++) {
         nodes_new[i+f]->P=nodes[i]->P+f;
         nodes_new[i+f]->B=nodes[i]->B;
+        nodes_new[i+f]->OrigB=nodes[i]->OrigB;
         nodes_new[i+f]->L=nodes[i]->L;
         nodes_new[i+f]->minblen=nodes[i]->minblen;
         nodes_new[i+f]->suc.clear();
@@ -1799,6 +1823,7 @@ void cloneInternalNodes(Pr* pr,Node** nodes,Node** &nodes_new,int f){
     for (int i=pr->nbINodes; i<=pr->nbBranches; i++) {
         nodes_new[i+f]->P=nodes[i]->P+f;
         nodes_new[i+f]->B=nodes[i]->B;
+        nodes_new[i+f]->OrigB=nodes[i]->OrigB;
     }
 }
 
@@ -1833,6 +1858,9 @@ bool reroot_rootedtree(double& br,int r,int s10,int s20,Pr* pr,Node** nodes,Node
         br = nodes[s10]->B+nodes[s20]->B;
         nodes_new[s10]->B=br;
         nodes_new[s20]->B=br;
+        double br2 = nodes[s10]->OrigB+nodes[s20]->OrigB;
+        nodes_new[s10]->OrigB=br2;
+        nodes_new[s20]->OrigB=br2;
         computeVarianceEstimateRoot(pr,nodes_new,br);
         return initConstraint(pr,nodes_new);
     }
@@ -1857,6 +1885,7 @@ bool reroot_rootedtree(double& br,int r,int s10,int s20,Pr* pr,Node** nodes,Node
             }
             nodes_new[j]->P=i;
             nodes_new[j]->B=nodes[i]->B;
+            nodes_new[j]->OrigB=nodes[i]->OrigB;
             ii=i;
             i=j;
             j=nodes[i]->P;
@@ -1875,6 +1904,10 @@ bool reroot_rootedtree(double& br,int r,int s10,int s20,Pr* pr,Node** nodes,Node
         nodes_new[k]->B=nodes[i]->B+nodes[k]->B;
         nodes_new[r]->B=br;
         nodes_new[nodes[r]->P]->B=br;
+        double br2=nodes[r]->OrigB;
+        nodes_new[k]->OrigB=nodes[i]->OrigB+nodes[k]->OrigB;
+        nodes_new[r]->OrigB=br2;
+        nodes_new[nodes[r]->P]->OrigB=br2;
         computeVarianceEstimateRoot(pr,nodes_new,br);
         return initConstraintReRooted(pr, nodes_new,k,i);
     }
@@ -1894,6 +1927,9 @@ bool reroot_rootedtree(double& br,int r,Pr* pr,Node** nodes){
         br = nodes[s10]->B+nodes[s20]->B;
         nodes_new[s10]->B=br;
         nodes_new[s20]->B=br;
+        double br2 = nodes[s10]->OrigB+nodes[s20]->OrigB;
+        nodes_new[s10]->OrigB=br2;
+        nodes_new[s20]->OrigB=br2;
         computeVarianceEstimateRoot(pr,nodes_new,br);
         nodes = nodes_new;
         return initConstraint(pr,nodes_new);
@@ -1919,6 +1955,7 @@ bool reroot_rootedtree(double& br,int r,Pr* pr,Node** nodes){
             }
             nodes_new[j]->P=i;
             nodes_new[j]->B=nodes[i]->B;
+            nodes_new[j]->OrigB=nodes[i]->OrigB;
             ii=i;
             i=j;
             j=nodes[i]->P;
@@ -1937,6 +1974,10 @@ bool reroot_rootedtree(double& br,int r,Pr* pr,Node** nodes){
         nodes_new[k]->B=nodes[i]->B+nodes[k]->B;
         nodes_new[r]->B=br;
         nodes_new[nodes[r]->P]->B=br;
+        double br2=nodes[r]->OrigB;
+        nodes_new[k]->OrigB=nodes[i]->OrigB+nodes[k]->OrigB;
+        nodes_new[r]->OrigB=br2;
+        nodes_new[nodes[r]->P]->OrigB=br2;
         computeVarianceEstimateRoot(pr,nodes_new,br);
         nodes = nodes_new;
         return initConstraintReRooted(pr, nodes_new,k,i);
@@ -1954,10 +1995,14 @@ bool reroot_rootedtree(double& br,int r,int s10,int s20,Pr* pr,Node** nodes,Node
             nodes_new[i]->P=nodes[i]->P;
             P_ref[i]=nodes[i]->P;
             nodes_new[i]->B=nodes[i]->B;
+            nodes_new[i]->OrigB=nodes[i]->OrigB;
         }
         br = nodes[s10]->B+nodes[s20]->B;
         nodes_new[s10]->B=br;
         nodes_new[s20]->B=br;
+        double br2 = nodes[s10]->OrigB+nodes[s20]->OrigB;
+        nodes_new[s10]->OrigB=br2;
+        nodes_new[s20]->OrigB=br2;
         computeVarianceEstimateRoot(pr,nodes_new,br);
         return initConstraint(pr, nodes_new);
     }
@@ -1987,6 +2032,7 @@ bool reroot_rootedtree(double& br,int r,int s10,int s20,Pr* pr,Node** nodes,Node
             nodes_new[j]->P=i;
             P_ref[j]=i;
             nodes_new[j]->B=nodes[i]->B;
+            nodes_new[j]->OrigB=nodes[i]->OrigB;
             ii=i;
             i=j;
             j=nodes[i]->P;
@@ -2006,6 +2052,10 @@ bool reroot_rootedtree(double& br,int r,int s10,int s20,Pr* pr,Node** nodes,Node
         nodes_new[k]->B=nodes[i]->B+nodes[k]->B;
         nodes_new[r]->B=br;
         nodes_new[nodes[r]->P]->B=br;
+        double br2=nodes[r]->OrigB;
+        nodes_new[k]->OrigB=nodes[i]->OrigB+nodes[k]->OrigB;
+        nodes_new[r]->OrigB=br;
+        nodes_new[nodes[r]->P]->OrigB=br2;
         computeVarianceEstimateRoot(pr,nodes_new,br);
         return initConstraintReRooted(pr, nodes_new,k,i);
     }
@@ -2016,6 +2066,7 @@ int reroot_rootedtree(int r,Pr* pr,Node** nodes,Node** & nodes_new){//used in ex
         //nodes_new[i] = new Node();
         nodes_new[i]->P=nodes[i]->P;
         nodes_new[i]->B=nodes[i]->B;
+        nodes_new[i]->OrigB=nodes[i]->OrigB;
         nodes_new[i]->L=nodes[i]->L;
     }
     vector<int>::iterator iter=nodes[0]->suc.begin();
@@ -2026,10 +2077,14 @@ int reroot_rootedtree(int r,Pr* pr,Node** nodes,Node** & nodes_new){//used in ex
         for (int i=0;i<=pr->nbBranches;i++){
             nodes_new[i]->P=nodes[i]->P;
             nodes_new[i]->B=nodes[i]->B;
+            nodes_new[i]->OrigB=nodes[i]->OrigB;
         }
         double br = nodes[s10]->B+nodes[s20]->B;
         nodes_new[s10]->B=br/2.;
         nodes_new[s20]->B=br/2.;
+        double br2 = nodes[s10]->OrigB+nodes[s20]->OrigB;
+        nodes_new[s10]->OrigB=br2/2.;
+        nodes_new[s20]->OrigB=br2/2.;
         if (r==s10) {
             return s20;
         }
@@ -2045,6 +2100,7 @@ int reroot_rootedtree(int r,Pr* pr,Node** nodes,Node** & nodes_new){//used in ex
         while (j!=0){
             nodes_new[j]->P=i;
             nodes_new[j]->B=nodes[i]->B;
+            nodes_new[j]->OrigB=nodes[i]->OrigB;
             i=j;
             j=nodes[i]->P;
         }
@@ -2055,6 +2111,10 @@ int reroot_rootedtree(int r,Pr* pr,Node** nodes,Node** & nodes_new){//used in ex
         nodes_new[k]->B=nodes[i]->B+nodes[k]->B;
         nodes_new[r]->B=br/2.;
         nodes_new[nodes[r]->P]->B=br/2.;
+        double br2=nodes[r]->OrigB;
+        nodes_new[k]->OrigB=nodes[i]->OrigB+nodes[k]->OrigB;
+        nodes_new[r]->OrigB=br2/2.;
+        nodes_new[nodes[r]->P]->OrigB=br2/2.;
         return nodes[r]->P;
     }
 }
@@ -2120,6 +2180,44 @@ string newick(int i,int terminate,Pr* pr,Node** nodes,int& nbTips){;
         }
     }
 }
+
+
+string newickGotree(int i,int terminate,Pr* pr,Node** nodes,int& nbTips){;
+    ostringstream b, date;
+
+    if (i>0){
+        b<<nodes[i]->OrigB;
+    }
+
+    if (pr->outDateFormat==2){
+        date<<"[&date=\""<<realToYearMonthDay(nodes[i]->D)<<"\"]";
+    } else if (pr->outDateFormat==3){
+        date<<"[&date=\""<<realToYearMonth(nodes[i]->D)<<"\"]";
+    } else{
+        date<<"[&date=\""<<nodes[i]->D<<"\"]";
+    }
+
+    if (i>=pr->nbINodes){
+        nbTips++;
+        return nodes[i]->L+date.str()+":"+b.str();
+    }
+    else{
+        string newLabel="(";
+        for (vector<int>::iterator iter=nodes[i]->suc.begin(); iter!=nodes[i]->suc.end(); iter++) {
+            int s = *iter;
+            string l=newickGotree(s,terminate,pr,nodes,nbTips);
+            if (iter==nodes[i]->suc.begin()) newLabel+=l;
+            else newLabel+=","+l;
+        }
+        if (i!=terminate) {
+            return newLabel+")"+nodes[i]->L+date.str()+":"+b.str();
+        }
+        else{
+            return newLabel+")"+nodes[i]->L+date.str()+";\n";
+        }
+    }
+}
+
 
 string nexus(int i,Pr* pr,Node** nodes){
     ostringstream b,date;
@@ -3014,6 +3112,7 @@ void collapse(int i,int j,Pr* pr,Node** nodes,Node** nodes_new, int &cc,int* &ta
         else{
             nodes_new[s]->P=i;
             nodes_new[s]->B = nodes[s]->B + nodes_new[j]->B;
+            nodes_new[s]->OrigB = nodes[s]->OrigB + nodes_new[j]->OrigB;
             if (s<pr->nbINodes) {
                 tab[s]=cc;
                 cc++;
@@ -3047,6 +3146,7 @@ int collapseTree(Pr* pr,Node** nodes,Node** nodes_new,int* &tab, double toCollap
         nodes_new[i]->upper=nodes[i]->upper;
         nodes_new[i]->D=nodes[i]->D;
         nodes_new[i]->B=nodes[i]->B;
+        nodes_new[i]->OrigB=nodes[i]->OrigB;
         nodes_new[i]->L=nodes[i]->L;
     }
     if (pr->ratePartition.size()>0) {
@@ -3126,6 +3226,7 @@ void collapseTreeReOrder(Pr* pr,Node** nodes,Pr* prReduced,Node** nodesReduced,i
             nodesReduced[tab[i]]=new Node();
             nodesReduced[tab[i]]->P=tab[nodes[i]->P];
             nodesReduced[tab[i]]->B=nodes[i]->B;
+            nodesReduced[tab[i]]->OrigB=nodes[i]->OrigB;
             nodesReduced[tab[i]]->type=nodes[i]->type;
             nodesReduced[tab[i]]->lower=nodes[i]->lower;
             nodesReduced[tab[i]]->upper=nodes[i]->upper;

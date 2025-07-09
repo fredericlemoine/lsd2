@@ -10,6 +10,7 @@ class Node
 public:
     int P;
     double B;
+    double OrigB; // Original branch length
     string L;
     double V;
     double H;

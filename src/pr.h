@@ -19,6 +19,7 @@ typedef struct Pr
     string  outFile;        //Nom du fichier de resultats.
     string treeFile2;       //Nom du fichier d'arbres sorties Nexus avec des longueurs de branches mesures par des temps ecoules
     string treeFile3;       //Nom du fichier d'arbres sorties Newick
+    string treeFile4;       //Nom du fichier d'arbres sorties Newick / Gotree version
     //bool relative;         //=true if all the leaves have the same date, the program estimate the relative dates
     double mrca;
     string MRCA;

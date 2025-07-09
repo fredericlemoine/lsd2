@@ -44,6 +44,9 @@ namespace lsd {
         /** output tree 3 stream */
         ostream *outTree3;
         
+        /** output tree 3 stream */
+        ostream *outTree4;
+        
         /** constructor */
         InputOutputStream();
         

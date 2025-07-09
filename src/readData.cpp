@@ -46,7 +46,10 @@ Node** tree2data(istream& tree,Pr* pr,int & s){
                 }
                 nbChild++;
             }
-            if (a>0) new_inode->B=readdouble(tree,"input tree");
+            if (a>0) {
+                new_inode->B=readdouble(tree,"input tree");
+                new_inode->OrigB=new_inode->B;
+            }
             pileNode.push(inode);
             inode++;
             internal_nodes.push_back(new_inode);
@@ -57,6 +60,7 @@ Node** tree2data(istream& tree,Pr* pr,int & s){
             Node* new_leaf = new Node();
             new_leaf->L=lb;
             new_leaf->B=readdouble(tree,"input tree");
+            new_leaf->OrigB=new_leaf->B;
             leaves.push_back(new_leaf);
             countleaf++;
         }
@@ -82,6 +86,7 @@ Node** tree2data(istream& tree,Pr* pr,int & s){
         }
         nodes[0]->P=-1;
         nodes[0]->B=-1;
+        nodes[0]->OrigB=-1;
     }
     else{
         pr->rooted=false;
@@ -100,6 +105,7 @@ Node** tree2data(istream& tree,Pr* pr,int & s){
         }
         nodes[1]->P=-1;
         nodes[1]->B=-1;
+        nodes[1]->OrigB=-1;
         nodes[0] = new Node();
     }
     delete internal_nodes[0];

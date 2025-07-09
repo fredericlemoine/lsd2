@@ -162,7 +162,7 @@ int lsd::buildTimeTree( int argc, char** argv, InputOutputStream *inputOutput)
             if (opt->estimate_root==""){//keep the given root
                 cout<<"Dating without temporal constraints ..."<<endl;
                 without_constraint_multirates(opt,nodes,true);
-                output(br,y,io, opt,nodes,*(io->outResult),*(io->outTree2),*(io->outTree3),r,diffTopology);
+                output(br,y,io, opt,nodes,*(io->outResult),*(io->outTree2),*(io->outTree3),*(io->outTree4),r,diffTopology);
             }
             else if (opt->estimate_root=="k"){
                 cout<<"Estimating the root position on the branch defined by given outgroups ..."<<endl;
@@ -175,7 +175,7 @@ int lsd::buildTimeTree( int argc, char** argv, InputOutputStream *inputOutput)
                 nodes[s2]->V=nodes[s1]->V;
                 constraintConsistent = without_constraint_active_set_lambda_multirates(true,br,opt,nodes,true);
                 if (constraintConsistent){
-                    output(br,y,io, opt,nodes,*(io->outResult),*(io->outTree2),*(io->outTree3),r,diffTopology);
+                    output(br,y,io, opt,nodes,*(io->outResult),*(io->outTree2),*(io->outTree3),*(io->outTree4),r,diffTopology);
                 }
                 else{
                     myExit("There's conflict or not enough signal in the input temporal constraints.\n");
@@ -201,7 +201,7 @@ int lsd::buildTimeTree( int argc, char** argv, InputOutputStream *inputOutput)
                     }
                     reroot_rootedtree(br,r,s1,s2,opt,nodes,nodes_new);
                     without_constraint_active_set_lambda_multirates(true,br,opt,nodes_new,true);
-                    output(br,y,io, opt,nodes_new,*(io->outResult),*(io->outTree2),*(io->outTree3),r,diffTopology);
+                    output(br,y,io, opt,nodes_new,*(io->outResult),*(io->outTree2),*(io->outTree3),*(io->outTree4),r,diffTopology);
                     for (int i=0;i<opt->nbBranches+1;i++) delete nodes_new[i];
                     delete[] nodes_new;
                 }
@@ -217,7 +217,7 @@ int lsd::buildTimeTree( int argc, char** argv, InputOutputStream *inputOutput)
                             constraintConsistent = with_constraint_multirates(opt,nodes,true);
                         }
                         if (constraintConsistent) {
-                            output(br,y,io, opt,nodes,*(io->outResult),*(io->outTree2),*(io->outTree3),r,diffTopology);
+                            output(br,y,io, opt,nodes,*(io->outResult),*(io->outTree2),*(io->outTree3),*(io->outTree4),r,diffTopology);
                         }
                         else{
                             myExit("There's conflict or not enough signal in the input temporal constraints.\n");
@@ -237,7 +237,7 @@ int lsd::buildTimeTree( int argc, char** argv, InputOutputStream *inputOutput)
                             constraintConsistent = with_constraint_active_set_lambda_multirates(true,br,opt,nodes,true);
                         }
                         if (constraintConsistent) {
-                            output(br,y,io, opt,nodes,*(io->outResult),*(io->outTree2),*(io->outTree3),r,diffTopology);
+                            output(br,y,io, opt,nodes,*(io->outResult),*(io->outTree2),*(io->outTree3),*(io->outTree4),r,diffTopology);
                         } else {
                             myExit("There's conflict or not enough signal in the input temporal constraints.\n");
                         }
@@ -266,7 +266,7 @@ int lsd::buildTimeTree( int argc, char** argv, InputOutputStream *inputOutput)
                         }
                         reroot_rootedtree(br,r,s1,s2,opt,nodes,nodes_new);
                         with_constraint_active_set_lambda_multirates(true,br,opt,nodes_new,true);
-                        output(br,y,io, opt,nodes_new,*(io->outResult),*(io->outTree2),*(io->outTree3),r,diffTopology);
+                        output(br,y,io, opt,nodes_new,*(io->outResult),*(io->outTree2),*(io->outTree3),*(io->outTree4),r,diffTopology);
                         for (int i=0;i<opt->nbBranches+1;i++) delete nodes_new[i];
                         delete[] nodes_new;
                     }

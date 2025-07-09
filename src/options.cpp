@@ -292,6 +292,7 @@ Pr* getCommandLine( int argc, char** argv)
     if( opt->outFile=="") opt->outFile = opt->inFile + ".result";
     opt->treeFile2=opt->outFile+".date.nexus";
     opt->treeFile3=opt->outFile+".nwk";
+    opt->treeFile4=opt->outFile+"_gotree.nwk";
     return opt;
 }
 
@@ -331,6 +332,7 @@ Pr* getInterface()
     opt->outFile = opt->inFile+".result";
     opt->treeFile2=opt->outFile+".date.nexus";
     opt->treeFile3=opt->outFile+".nwk";
+    opt->treeFile4=opt->outFile+"_gotree.nwk";
     if (!opt->rooted) {
         opt->estimate_root="a";
     }
